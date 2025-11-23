@@ -11,3 +11,19 @@ We keep everything tied to GitHub Issues so we can work asynchronously.
 - Use `dev` branch
 
 The above allows GitHub to update the kanban board automatically. 
+
+### How to run the app in dev
+
+#### Infrastructure
+
+```bash
+docker compose --profile dev --env-file .env.dev up -d
+```
+
+- Neo4j Browser: [http://localhost:7474/browser/](http://localhost:7474/browser/)
+
+#### Dependencies
+
+```bash
+uv sync
+```
