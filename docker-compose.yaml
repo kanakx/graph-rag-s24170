@@ -1,0 +1,11 @@
+services:
+  neo4j:
+    profiles:
+      - 'dev'
+    image: 'neo4j:5.26.17-community'
+    restart: unless-stopped
+    ports:
+      - '7474:7474'
+      - '7687:7687'
+    environment:
+      NEO4J_AUTH: ${NEO4J_AUTH}
