@@ -53,7 +53,7 @@ async def upload_file(file: UploadFile = File(...)):
         size = len(data)
 
         file_id = str(uuid4())
-        object_name = f'{file.filename}___{file_id}'
+        object_name = file_id
 
         minio_client.put_object(
             bucket_name=MINIO_BUCKET_NAME,
