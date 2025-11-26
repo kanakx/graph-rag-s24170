@@ -3,7 +3,7 @@ from uuid import uuid4
 
 from minio import Minio
 
-from src.file_service.file_info import FileInfo
+from src.file_service.src.file_info import FileInfo
 
 
 class MinioFileStorage:

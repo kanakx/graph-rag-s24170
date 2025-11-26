@@ -5,8 +5,9 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from minio import Minio
 from minio.error import S3Error
 
-from src.file_service.file_info import FileInfo
-from src.file_service.minio_file_storage import MinioFileStorage
+
+from .file_info import FileInfo
+from .minio_file_storage import MinioFileStorage
 
 load_dotenv('.env.dev')
 
