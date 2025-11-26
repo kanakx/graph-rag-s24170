@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 
-API_URL = "http://localhost:xxxx"
+API_URL = "http://localhost:8000"
 
 uploaded_files = st.file_uploader(
     "Upload Documents",
@@ -10,7 +10,7 @@ uploaded_files = st.file_uploader(
 
 for f in uploaded_files:
     files = {"file": (f.name, f, "application/pdf")}
-    response = requests.post(f"{API_URL}/upload/resume", files=files)
+    response = requests.post(f"{API_URL}/files", files=files)
 
     if response.ok:
         st.success(f"Uploaded the file {f.name}")
