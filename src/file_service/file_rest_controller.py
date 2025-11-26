@@ -1,5 +1,6 @@
 import io
 import os
+from uuid import uuid4
 
 from minio import Minio
 from dotenv import load_dotenv
@@ -44,13 +45,15 @@ def ensure_bucket_exists():
         minio_client.make_bucket(bucket_name=MINIO_BUCKET_NAME)
 
 
-@app.post('/upload')
+@app.post("/files", response_model=FileInfo)
 async def upload_file(file: UploadFile = File(...)):
     try:
         data = await file.read()
         file_bytes = io.BytesIO(data)
         size = len(data)
-        object_name = file.filename
+
+        file_id = str(uuid4())
+        object_name = f'{file.filename}___{file_id}'
 
         minio_client.put_object(
             bucket_name=MINIO_BUCKET_NAME,
@@ -60,18 +63,7 @@ async def upload_file(file: UploadFile = File(...)):
             content_type=file.content_type or "application/octet-stream",
         )
 
-        url = minio_client.presigned_get_object(
-            bucket_name=MINIO_BUCKET_NAME,
-            object_name=object_name,
-        )
-
-        return {
-            "bucket": MINIO_BUCKET_NAME,
-            "object_name": object_name,
-            "size": size,
-            "download_url": url,
-        }
-
+        return FileInfo(id=file_id, download_url=make_download_url(object_name))
     except S3Error as e:
         raise HTTPException(status_code=500, detail=f"MinIO error: {e}")
 
