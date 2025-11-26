@@ -1,13 +1,12 @@
-import io
 import os
-from uuid import uuid4
 
-from minio import Minio
 from dotenv import load_dotenv
-from minio.error import S3Error
-from pydantic import BaseModel
-
 from fastapi import FastAPI, UploadFile, File, HTTPException
+from minio import Minio
+from minio.error import S3Error
+
+from src.file_service.file_info import FileInfo
+from src.file_service.minio_file_storage import MinioFileStorage
 
 load_dotenv('.env.dev')
 
@@ -26,10 +25,7 @@ minio_client = Minio(
     secure=bool(MINIO_SECURE),
 )
 
-
-class FileInfo(BaseModel):
-    id: str
-    download_url: str
+storage = MinioFileStorage(minio_client, MINIO_BUCKET_NAME)
 
 
 def make_download_url(object_name: str) -> str:
@@ -48,22 +44,8 @@ def ensure_bucket_exists():
 @app.post("/files", response_model=FileInfo)
 async def upload_file(file: UploadFile = File(...)):
     try:
-        data = await file.read()
-        file_bytes = io.BytesIO(data)
-        size = len(data)
-
-        file_id = str(uuid4())
-        object_name = file_id
-
-        minio_client.put_object(
-            bucket_name=MINIO_BUCKET_NAME,
-            object_name=object_name,
-            data=file_bytes,
-            length=size,
-            content_type=file.content_type or "application/octet-stream",
-        )
-
-        return FileInfo(id=file_id, download_url=make_download_url(object_name))
+        content = await file.read()
+        return storage.upload(content, file.content_type)
     except S3Error as e:
         raise HTTPException(status_code=500, detail=f"MinIO error: {e}")
 
