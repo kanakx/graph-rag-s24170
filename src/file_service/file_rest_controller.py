@@ -4,6 +4,7 @@ import os
 from minio import Minio
 from dotenv import load_dotenv
 from minio.error import S3Error
+from pydantic import BaseModel
 
 from fastapi import FastAPI, UploadFile, File, HTTPException
 
@@ -23,6 +24,18 @@ minio_client = Minio(
     secret_key=MINIO_SECRET_KEY,
     secure=bool(MINIO_SECURE),
 )
+
+
+class FileInfo(BaseModel):
+    id: str
+    download_url: str
+
+
+def make_download_url(object_name: str) -> str:
+    return minio_client.presigned_get_object(
+        bucket_name=MINIO_BUCKET_NAME,
+        object_name=object_name,
+    )
 
 
 @app.on_event('startup')
@@ -60,4 +73,28 @@ async def upload_file(file: UploadFile = File(...)):
         }
 
     except S3Error as e:
+        raise HTTPException(status_code=500, detail=f"MinIO error: {e}")
+
+
+@app.get("/files/{file_id}", response_model=FileInfo)
+def get_file(file_id: str):
+    object_name = file_id
+    try:
+        minio_client.stat_object(bucket_name=MINIO_BUCKET_NAME, object_name=object_name)
+    except S3Error as e:
+        if e.code in {"NoSuchKey", "NoSuchObject"}:
+            raise HTTPException(status_code=404, detail="File not found")
+        raise HTTPException(status_code=500, detail=f"MinIO error: {e}")
+
+    return FileInfo(id=file_id, download_url=make_download_url(object_name))
+
+
+@app.delete("/files/{file_id}", status_code=204)
+def delete_file(file_id: str):
+    object_name = file_id
+    try:
+        minio_client.remove_object(bucket_name=MINIO_BUCKET_NAME, object_name=object_name)
+    except S3Error as e:
+        if e.code in {"NoSuchKey", "NoSuchObject"}:
+            raise HTTPException(status_code=404, detail="File not found")
         raise HTTPException(status_code=500, detail=f"MinIO error: {e}")
