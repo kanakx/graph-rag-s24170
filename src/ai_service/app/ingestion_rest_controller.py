@@ -3,9 +3,9 @@ import os
 from fastapi import FastAPI
 import requests
 
-from src.ai_service.app.file_info import FileInfo
-from src.ai_service.app.graph_transformer import ingest_cv_text_into_graph
-from src.ai_service.app.pdf_util import pdf_to_text
+from file_info import FileInfo
+from graph_transformer import ingest_cv_text_into_graph
+from pdf_util import pdf_to_text
 
 FILE_SERVICE_URL = os.getenv('FILE_SERVICE_URL')
 
