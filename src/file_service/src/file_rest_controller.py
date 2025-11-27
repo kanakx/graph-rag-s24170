@@ -52,7 +52,7 @@ async def upload_file(file: UploadFile = File(...)):
             requests.post(
                 f"{AI_SERVICE_URL}/ingest",
                 json=file_info.dict(),
-                timeout=2.0,
+                timeout=10.0,
             )
         except Exception as e:
             print(f'Ingestion error: {e}')
