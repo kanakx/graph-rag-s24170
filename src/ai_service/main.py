@@ -1,4 +1,4 @@
-from src.ai_service.app.ingestion_rest_controller import app
+from src.ingestion_rest_controller import app
 
 if __name__ == "__main__":
     import uvicorn
