@@ -1,4 +1,5 @@
 import os
+from typing import List
 
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from minio import Minio
@@ -58,6 +59,17 @@ def get_file(file_id: str):
         raise HTTPException(status_code=500, detail=f"MinIO error: {e}")
 
     return FileInfo(id=file_id, download_url=make_download_url(object_name))
+
+
+@app.get("/files", response_model=List[FileInfo])
+def get_files():
+    objects = minio_client.list_objects(bucket_name=MINIO_BUCKET_NAME)
+    files_response = []
+    for o in objects:
+        file_info = FileInfo(id=o.object_name, download_url=make_download_url(o.object_name))
+        files_response.append(file_info)
+
+    return files_response
 
 
 @app.delete("/files/{file_id}", status_code=204)
