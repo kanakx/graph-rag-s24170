@@ -9,7 +9,12 @@ dependencies = []
 [dependency-groups]
 backend = [
     "fastapi>=0.122.0",
+    "langchain>=1.1.0",
+    "langchain-neo4j>=0.6.0",
+    "langchain-openai>=1.1.0",
+    "llmgraphtransformer>=0.0.2",
     "minio>=7.2.19",
+    "pypdf>=6.4.0",
     "python-dotenv>=1.2.1",
     "python-multipart>=0.0.20",
     "requests>=2.32.5",
