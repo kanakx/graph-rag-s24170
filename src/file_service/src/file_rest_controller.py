@@ -1,4 +1,5 @@
 import os
+import requests
 from typing import List
 
 from fastapi import FastAPI, UploadFile, File, HTTPException
@@ -13,6 +14,8 @@ MINIO_ACCESS_KEY = os.getenv('MINIO_ROOT_USER')
 MINIO_SECRET_KEY = os.getenv('MINIO_ROOT_PASSWORD')
 MINIO_BUCKET_NAME = os.getenv('MINIO_BUCKET_NAME')
 MINIO_SECURE = os.getenv('MINIO_SECURE', 'False').lower() == 'true'
+
+AI_SERVICE_URL = os.getenv('AI_SERVICE_URL')
 
 app = FastAPI()
 
@@ -43,7 +46,19 @@ def ensure_bucket_exists():
 async def upload_file(file: UploadFile = File(...)):
     try:
         content = await file.read()
-        return storage.upload(content, file.content_type)
+        file_info = storage.upload(content, file.content_type)
+
+        try:
+            requests.post(
+                f"{AI_SERVICE_URL}/ingest",
+                json=file_info.dict(),
+                timeout=2.0,
+            )
+        except Exception as e:
+            print(f'Ingestion error: {e}')
+
+        return file_info
+
     except S3Error as e:
         raise HTTPException(status_code=500, detail=f"MinIO error: {e}")
 
