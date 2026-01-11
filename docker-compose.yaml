@@ -55,3 +55,15 @@ services:
         condition: service_started
       neo4j:
         condition: service_healthy
+  streamlit:
+    profiles:
+      - 'dev'
+    build:
+      context: ./src/frontend
+      dockerfile: Dockerfile
+    env_file:
+      - .env.dev
+    ports:
+      - "8501:8501"
+    depends_on:
+      - ai-service
