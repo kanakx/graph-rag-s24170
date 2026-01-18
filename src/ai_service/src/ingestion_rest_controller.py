@@ -6,10 +6,12 @@ import requests
 from .file_info import FileInfo
 from .graph_transformer import ingest_cv_text_into_graph
 from .pdf_util import pdf_to_text
+from .chat_rest_controller import router as chat_router
 
 FILE_SERVICE_URL = os.getenv('FILE_SERVICE_URL')
 
 app = FastAPI()
+app.include_router(chat_router)
 
 
 @app.post("/ingest")

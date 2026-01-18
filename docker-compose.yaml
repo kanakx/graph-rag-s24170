@@ -65,5 +65,9 @@ services:
       - .env.dev
     ports:
       - "8501:8501"
+    volumes:
+      - ./src/frontend:/app
+    environment:
+      - STREAMLIT_SERVER_RUN_ON_SAVE=true
     depends_on:
       - ai-service
