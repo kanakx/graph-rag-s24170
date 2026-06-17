@@ -1,4 +1,4 @@
-# teg-s24170-s35256
+# Graph RAG
 
 ### Quickstart
 
@@ -15,8 +15,6 @@ docker compose --profile dev --env-file .env.dev up -d
 - MinIO Console: [http://localhost:9001/browser/uploads](http://localhost:9001/browser/uploads)
 
 ## Documentation
-
-# teg-s24170-s35256
 
 ## Project Overview
 
